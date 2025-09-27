@@ -1,0 +1,105 @@
+{% extends 'diary/base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">{{ page_title }}</h1>
+
+    <div class="row">
+        <!-- Общая статистика -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Всего записей</h5>
+                    <p class="card-text display-4">{{ total_entries }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Распределение эмоций -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Общее распределение эмоций</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for item in sentiment_distribution %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ item.sentiment_label|title }}
+                                <span class="badge bg-primary rounded-pill">{{ item.count }}</span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">Нет данных для анализа.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ключевые люди -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Ключевые люди в вашей жизни</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for person, count in top_people %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ person }}
+                                <span class="badge bg-info rounded-pill">{{ count }}</span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">В записях не упоминаются люди.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Анализ связей -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Анализ связей: Наиболее частые пары</h5>
+            <ul class="list-group list-group-flush">
+                {% for pair, count in top_pairs %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ pair.0 }} &harr; {{ pair.1 }}</span>
+                        <span class="badge bg-success rounded-pill">{{ count }}</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">Не найдено устойчивых парных связей.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Анализ по персонам -->
+    <h2 class="mb-3">Анализ тональности по ключевым людям</h2>
+    <div class="accordion" id="peopleAccordion">
+        {% for analysis in people_sentiment_analysis %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading-{{ forloop.counter }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse-{{ forloop.counter }}">
+                        <strong>{{ analysis.person }}</strong>
+                    </button>
+                </h2>
+                <div id="collapse-{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ forloop.counter }}" data-bs-parent="#peopleAccordion">
+                    <div class="accordion-body">
+                        <ul class="list-group">
+                            {% for sentiment in analysis.sentiments %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ sentiment.sentiment_label|title }}
+                                    <span class="badge bg-secondary rounded-pill">{{ sentiment.count }}</span>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item">Нет данных для анализа по этому человеку.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>Нет данных для анализа.</p>
+        {% endfor %}
+    </div>
+
+{% endblock %}

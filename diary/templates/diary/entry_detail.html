@@ -1,0 +1,22 @@
+{% extends 'diary/base.html' %}
+
+{% block title %}{{ entry.title }}{% endblock %}
+
+{% block content %}
+    <div style="word-wrap: break-word;">
+        <h1 class="mb-4">{{ entry.title }}</h1>
+        <p class="text-muted">Создано: {{ entry.created_at|date:"d.m.Y H:i" }}</p>
+        <hr>
+
+        <div class="entry-content mt-4">
+            {{ entry.content|linebreaks }}
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <div class="d-flex justify-content-end">
+        <a href="{% url 'diary:entry_edit' entry.pk %}" class="btn btn-secondary me-2">Редактировать</a>
+        <a href="{% url 'diary:entry_delete' entry.pk %}" class="btn btn-danger">Удалить</a>
+    </div>
+{% endblock %}
